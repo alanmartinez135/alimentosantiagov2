@@ -14,7 +14,7 @@ const HeroSection = () => {
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-burgundy-800 leading-tight mb-4">
-              Sabor Burdeos
+              Alimentos Santiago
             </h1>
             <p className="text-lg md:text-xl text-gray-700 mb-6 md:mb-8">
               Disfruta de los más exquisitos platillos gourmet, preparados con los mejores 
