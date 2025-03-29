@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -30,7 +29,7 @@ const Navbar = () => {
         <div className="flex justify-between items-center">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <span className="text-2xl font-bold text-burgundy-800">Sabor Burdeos</span>
+            <span className="text-2xl font-bold text-burgundy-800">Alimentos Santiago</span>
           </Link>
 
           {/* Desktop Navigation */}

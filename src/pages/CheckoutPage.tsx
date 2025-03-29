@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import MainLayout from "@/components/Layout/MainLayout";
@@ -12,6 +11,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useOrder } from "@/context/OrderContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Home, CreditCard, MapPin } from "lucide-react";
+import DeliveryMap from "@/components/Map/DeliveryMap";
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -20,25 +20,21 @@ const CheckoutPage = () => {
   const { createOrder } = useOrder();
   const { toast } = useToast();
 
-  // State
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
   const [address, setAddress] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Credit card details (for demo only)
   const [cardNumber, setCardNumber] = useState("");
   const [cardName, setCardName] = useState("");
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCvc, setCardCvc] = useState("");
 
-  // Redirect if cart is empty
   useEffect(() => {
     if (items.length === 0) {
       navigate("/carrito");
     }
   }, [items, navigate]);
 
-  // Redirect if user is not logged in
   useEffect(() => {
     if (!user) {
       toast({
@@ -65,11 +61,8 @@ const CheckoutPage = () => {
     setIsProcessing(true);
 
     try {
-      // This would be replaced with actual payment processing
-      // For now, we'll just simulate a delay
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Create the order
       const order = await createOrder(
         items, 
         totalPrice, 
@@ -77,17 +70,14 @@ const CheckoutPage = () => {
         deliveryMethod === "delivery" ? address : undefined
       );
       
-      // Clear the cart
       clearCart();
       
-      // Show success message
       toast({
         title: "¡Pedido completado!",
         description: `Tu pedido #${order.id.slice(-4)} ha sido procesado correctamente.`,
         variant: "default",
       });
       
-      // Redirect to profile page
       navigate("/perfil");
     } catch (error) {
       toast({
@@ -111,7 +101,6 @@ const CheckoutPage = () => {
         <div className="flex flex-col md:flex-row gap-8">
           <div className="md:w-2/3">
             <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Delivery method */}
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-lg font-medium mb-4">Método de entrega</h2>
                 
@@ -148,22 +137,24 @@ const CheckoutPage = () => {
                 </RadioGroup>
                 
                 {deliveryMethod === "delivery" && (
-                  <div className="mt-4 p-4 border-t">
-                    <Label htmlFor="address" className="block mb-2">
-                      Dirección de entrega
-                    </Label>
-                    <Input
-                      id="address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      placeholder="Ingresa tu dirección completa"
-                      required
-                    />
+                  <div className="mt-4 space-y-4">
+                    <div className="p-4 border-t">
+                      <Label htmlFor="address" className="block mb-2">
+                        Dirección de entrega
+                      </Label>
+                      <Input
+                        id="address"
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Ingresa tu dirección completa"
+                        required
+                      />
+                    </div>
+                    <DeliveryMap />
                   </div>
                 )}
               </div>
 
-              {/* Payment information */}
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-lg font-medium mb-4 flex items-center">
                   <CreditCard className="h-5 w-5 mr-2 text-burgundy-700" />

@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -15,6 +14,7 @@ export interface MenuItem {
   tags: string[];
   rating: number;
   reviews: Review[];
+  stock: number;
 }
 
 export interface Review {

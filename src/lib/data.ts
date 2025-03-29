@@ -1,4 +1,3 @@
-
 import { MenuItem, Order } from "@/types";
 
 export const menuItems: MenuItem[] = [
@@ -11,6 +10,7 @@ export const menuItems: MenuItem[] = [
     category: "platos-principales",
     tags: ["vegetariano", "italiano"],
     rating: 4.8,
+    stock: 15,
     reviews: [
       {
         id: "r1",
@@ -31,6 +31,7 @@ export const menuItems: MenuItem[] = [
     category: "platos-principales",
     tags: ["carne", "gourmet"],
     rating: 4.9,
+    stock: 10,
     reviews: [
       {
         id: "r2",

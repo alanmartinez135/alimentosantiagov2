@@ -9,7 +9,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* About */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Sabor Burdeos</h3>
+            <h3 className="text-xl font-bold mb-4">Alimentos Santiago</h3>
             <p className="text-gray-300">
               Disfruta de la auténtica cocina gourmet con sabores únicos y 
               presentaciones exquisitas. Nos esforzamos por ofrecerte una experiencia 
@@ -47,9 +47,9 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h3 className="text-xl font-bold mb-4">Contáctanos</h3>
-            <p className="text-gray-300 mb-2">Av. Gastronómica 123, Ciudad Gourmet</p>
-            <p className="text-gray-300 mb-2">Teléfono: +123 456 7890</p>
-            <p className="text-gray-300 mb-4">Email: info@saborburdeos.com</p>
+            <p className="text-gray-300 mb-2">Av. Gastronómica 123, Santiago</p>
+            <p className="text-gray-300 mb-2">Teléfono: +56 2 2345 6789</p>
+            <p className="text-gray-300 mb-4">Email: info@alimentossantiago.cl</p>
             
             <div className="flex space-x-4">
               <a href="#" className="text-white hover:text-burgundy-300 transition-colors">
@@ -66,7 +66,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-burgundy-800 mt-8 pt-6 text-center text-gray-400 text-sm">
-          &copy; {new Date().getFullYear()} Sabor Burdeos. Todos los derechos reservados.
+          &copy; {new Date().getFullYear()} Alimentos Santiago. Todos los derechos reservados.
         </div>
       </div>
     </footer>
