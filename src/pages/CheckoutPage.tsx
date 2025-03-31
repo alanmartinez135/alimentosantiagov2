@@ -57,32 +57,56 @@ const CheckoutPage = () => {
       });
       return;
     }
-
+  
     setIsProcessing(true);
-
+  
     try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // Crear el pedido
       const order = await createOrder(
         items, 
         totalPrice, 
         deliveryMethod,
         deliveryMethod === "delivery" ? address : undefined
       );
-      
-      clearCart();
-      
-      toast({
-        title: "¡Pedido completado!",
-        description: `Tu pedido #${order.id.slice(-4)} ha sido procesado correctamente.`,
-        variant: "default",
+  
+      // Hacer la solicitud al backend para crear la preferencia de pago en MercadoPago
+      const response = await fetch("http://localhost:4000/create_preference", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          items: items.map(item => ({
+            nombre: item.menuItem.name,    // Accede a name dentro de menuItem
+            precio: item.menuItem.price,   // Accede a price dentro de menuItem
+            cantidad: item.quantity,       // La cantidad está en item.quantity
+          })),
+          total: totalPrice,
+        }),
       });
-      
-      navigate("/perfil");
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        // Redirigir a la URL de pago de MercadoPago
+        window.location.href = `https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=${data.id}`;
+        clearCart();
+        
+        toast({
+          title: "¡Pedido completado!",
+          description: `Tu pedido #${order.id.slice(-4)} ha sido procesado correctamente.`,
+          variant: "default",
+        });
+  
+        navigate("/perfil");
+      } else {
+        throw new Error(data.error || "Error al generar el pago");
+      }
+  
     } catch (error) {
       toast({
         title: "Error al procesar el pago",
-        description: "Ha ocurrido un error al procesar tu pago. Por favor, intenta de nuevo.",
+        description: error.message || "Ha ocurrido un error al procesar tu pago. Por favor, intenta de nuevo.",
         variant: "destructive",
       });
     } finally {
