@@ -10,7 +10,7 @@ const HeroSection = () => {
       <div className="absolute inset-0 z-0 hero-pattern"></div>
       
       {/* Hero content */}
-      <div className="relative z-10 container mx-auto px-4 py-24 md:py-32">
+      <div className="relative z-11 container mx-auto px-4 py-24 md:py-32">
         <div className="flex flex-col md:flex-row items-center">
           <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-burgundy-800 leading-tight mb-4">

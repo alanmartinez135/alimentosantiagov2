@@ -52,6 +52,7 @@ export const menuItems: MenuItem[] = [
     category: "platos-principales",
     tags: ["mariscos", "pasta"],
     rating: 4.7,
+    stock: 12,
     reviews: [
       {
         id: "r3",
@@ -72,6 +73,7 @@ export const menuItems: MenuItem[] = [
     category: "entrantes",
     tags: ["vegetariano", "fresco"],
     rating: 4.6,
+    stock: 20,
     reviews: [
       {
         id: "r4",
@@ -92,6 +94,7 @@ export const menuItems: MenuItem[] = [
     category: "postres",
     tags: ["chocolate", "caliente"],
     rating: 4.9,
+    stock: 8,
     reviews: [
       {
         id: "r5",
@@ -112,6 +115,7 @@ export const menuItems: MenuItem[] = [
     category: "entrantes",
     tags: ["mariscos", "fresco", "cítrico"],
     rating: 4.7,
+    stock: 5,
     reviews: [
       {
         id: "r6",
@@ -141,7 +145,7 @@ export const sampleOrders: Order[] = [
         quantity: 1
       }
     ],
-    total: 33.49,
+    total: menuItems[0].price * 1 + menuItems[3].price * 1, // 18.99 + 14.50 = 33.49
     status: "delivered",
     date: "2023-10-20",
     deliveryMethod: "delivery",
@@ -162,7 +166,7 @@ export const sampleOrders: Order[] = [
         quantity: 2
       }
     ],
-    total: 79.96,
+    total: menuItems[1].price * 2 + menuItems[4].price * 2, // (26.99 * 2) + (12.99 * 2) = 79.96
     status: "delivered",
     date: "2023-11-05",
     deliveryMethod: "pickup"
