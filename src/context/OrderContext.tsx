@@ -1,9 +1,9 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { Order, CartItem } from "@/types";
 import { useAuth } from "./AuthContext";
 import { useToast } from "@/components/ui/use-toast";
-import { sampleOrders } from "@/lib/data";
+
+const API_URL = "http://localhost:3001";  // Aquí apuntas al servidor json-server
 
 type OrderContextType = {
   orders: Order[];
@@ -18,29 +18,33 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useAuth();
   const { toast } = useToast();
 
-  // Load orders from localStorage or use sample data if available
+  // Cargar los pedidos desde json-server
   useEffect(() => {
     if (!user) return;
 
-    const storedOrders = localStorage.getItem(`orders_${user.id}`);
-    if (storedOrders) {
-      try {
-        setOrders(JSON.parse(storedOrders));
-      } catch (e) {
-        console.error("Error parsing orders from localStorage", e);
-        // Fallback to sample orders
-        setOrders(sampleOrders.filter(order => order.userId === user.id));
-      }
-    } else {
-      // Use sample orders for demo
-      setOrders(sampleOrders.filter(order => order.userId === user.id));
-    }
+    // Llamada a json-server para obtener los pedidos
+    fetch(`${API_URL}/orders?userId=${user.id}`)
+      .then((response) => response.json())
+      .then((data) => setOrders(data))
+      .catch((error) => {
+        console.error("Error al cargar los pedidos", error);
+      });
   }, [user]);
 
-  // Save orders to localStorage whenever they change
+  // Guardar los pedidos en json-server cuando cambian
   useEffect(() => {
     if (!user) return;
-    localStorage.setItem(`orders_${user.id}`, JSON.stringify(orders));
+
+    // Guardar los pedidos en json-server
+    orders.forEach((order) => {
+      fetch(`${API_URL}/orders/${order.id}`, {
+        method: "PUT", // Utilizamos PUT para actualizar los pedidos
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(order),
+      }).catch((error) => console.error("Error al guardar el pedido", error));
+    });
   }, [orders, user]);
 
   const createOrder = async (
@@ -53,7 +57,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
       throw new Error("Usuario no autenticado");
     }
 
-    // Simulate API call delay
+    // Simular un retraso en la llamada API
     await new Promise(resolve => setTimeout(resolve, 1000));
 
     const newOrder: Order = {
@@ -67,15 +71,26 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
       deliveryAddress
     };
 
-    setOrders(prevOrders => [...prevOrders, newOrder]);
+    // Enviar la nueva orden al servidor json-server
+    const response = await fetch(`${API_URL}/orders`, {
+      method: "POST",  // Usamos POST para crear una nueva orden
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newOrder),
+    });
+
+    const createdOrder = await response.json();
+
+    setOrders(prevOrders => [...prevOrders, createdOrder]);
 
     toast({
       title: "Pedido creado",
-      description: `Tu pedido #${newOrder.id.slice(-4)} ha sido recibido`,
+      description: `Tu pedido #${createdOrder.id.slice(-4)} ha sido recibido`,
       variant: "default",
     });
 
-    return newOrder;
+    return createdOrder;
   };
 
   const getPreviousOrders = (): Order[] => {
