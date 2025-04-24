@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { MenuItem } from "@/types";
 import MenuItemCard from "./MenuItemCard";
@@ -12,19 +11,20 @@ interface MenuListProps {
 
 const MenuList = ({ items }: MenuListProps) => {
   const [searchTerm, setSearchTerm] = useState("");
-  
+
   // Get unique categories
   const categories = ["todos", ...Array.from(new Set(items.map(item => item.category)))];
-  
+
   // Filter and search items
   const filterItems = (category: string, search: string) => {
     return items.filter(item => {
       const matchesCategory = category === "todos" || item.category === category;
-      const matchesSearch = !search || 
-        item.name.toLowerCase().includes(search.toLowerCase()) || 
+      const matchesSearch =
+        !search ||
+        item.name.toLowerCase().includes(search.toLowerCase()) ||
         item.description.toLowerCase().includes(search.toLowerCase()) ||
         item.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()));
-      
+
       return matchesCategory && matchesSearch;
     });
   };
@@ -53,9 +53,9 @@ const MenuList = ({ items }: MenuListProps) => {
       {/* Category Tabs */}
       <Tabs defaultValue="todos" className="mb-8">
         <TabsList className="w-full justify-start overflow-x-auto py-2">
-          {categories.map(category => (
-            <TabsTrigger 
-              key={category} 
+          {categories.map((category, index) => (
+            <TabsTrigger
+              key={`trigger-${category}-${index}`}
               value={category}
               className="data-[state=active]:bg-burgundy-700 data-[state=active]:text-white"
             >
@@ -64,9 +64,9 @@ const MenuList = ({ items }: MenuListProps) => {
           ))}
         </TabsList>
 
-        {categories.map(category => (
-          <TabsContent 
-            key={category} 
+        {categories.map((category, index) => (
+          <TabsContent
+            key={`content-${category}-${index}`}
             value={category}
             className="pt-4"
           >
@@ -75,7 +75,7 @@ const MenuList = ({ items }: MenuListProps) => {
                 <MenuItemCard key={item.id} item={item} />
               ))}
             </div>
-            
+
             {filterItems(category, searchTerm).length === 0 && (
               <div className="text-center py-12">
                 <h3 className="text-lg text-gray-500">No se encontraron resultados</h3>
