@@ -44,14 +44,6 @@ const MenuPage = () => {
           </p>
         </div>
 
-        {/* Agregar un botón para refrescar el menú */}
-        <button 
-          onClick={refreshMenuItems} 
-          className="bg-blue-500 text-white py-2 px-4 rounded-md mb-4"
-        >
-          Refrescar Menú
-        </button>
-
         {/* Pasar los datos obtenidos al componente MenuList */}
         <MenuList items={menuItems} />
       </div>

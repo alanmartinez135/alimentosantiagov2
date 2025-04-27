@@ -9,7 +9,7 @@ const Home = () => {
 
   useEffect(() => {
     // Hacer la solicitud fetch a json-server para obtener los elementos del menú
-    fetch("http://localhost:3001/menuItems")  // Aquí apuntas a tu servidor json-server
+    fetch("http://localhost:3000/menuItems")  // Aquí apuntas a tu servidor json-server
       .then((response) => response.json())
       .then((data) => setMenuItems(data))
       .catch((error) => console.error("Error al cargar los items del menú", error));

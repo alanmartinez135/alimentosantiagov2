@@ -1,7 +1,7 @@
 import { Admin, Resource } from "react-admin";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import jsonServerProvider from "ra-data-json-server";  // Importación correcta del provider
+import simpleRestProvider from 'ra-data-simple-rest';
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
@@ -21,7 +21,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 // DataProvider apuntando a tu backend JSON
-const dataProvider = jsonServerProvider('http://localhost:3001');  // URL del backend json-server
+
+const dataProvider = simpleRestProvider('http://localhost:3000');
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

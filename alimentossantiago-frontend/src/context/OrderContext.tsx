@@ -3,7 +3,7 @@ import { Order, CartItem } from "@/types";
 import { useAuth } from "./AuthContext";
 import { useToast } from "@/components/ui/use-toast";
 
-const API_URL = "http://localhost:3001";  // Aquí apuntas al servidor json-server
+const API_URL = "http://localhost:3000";  // 
 
 type OrderContextType = {
   orders: Order[];
@@ -31,7 +31,7 @@ export const OrderProvider = ({ children }: { children: ReactNode }) => {
       });
   }, [user]);
 
-  // Guardar los pedidos en json-server cuando cambian
+  // Guardar los pedidos en express cuando cambian
   useEffect(() => {
     if (!user) return;
 
