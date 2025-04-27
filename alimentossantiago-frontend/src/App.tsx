@@ -1,4 +1,3 @@
-import { Admin, Resource } from "react-admin";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import simpleRestProvider from 'ra-data-simple-rest';
@@ -7,8 +6,6 @@ import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
 
 // Componentes de la app
-import AdminPanel from "./Admin/AdminPanel";
-import MenuItemList from "./Admin/MenuItemList";
 import Home from "./pages/Home";
 import MenuPage from "./pages/MenuPage";
 import CartPage from "./pages/CartPage";
@@ -38,13 +35,6 @@ const App = () => (
               <Route path="/login" element={<LoginPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
-              
-              {/* Panel de administración */}
-              <Route path="/admin" element={
-                <Admin dataProvider={dataProvider}>
-                  <Resource name="menuItems" list={MenuItemList} />
-                </Admin>
-              } />
             </Routes>
           </BrowserRouter>
         </OrderProvider>

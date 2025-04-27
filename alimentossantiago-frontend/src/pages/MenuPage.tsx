@@ -1,3 +1,4 @@
+import MenuItemForm from "@/components/admin/MenuItemForm";  //
 import MainLayout from "@/components/Layout/MainLayout";
 import MenuList from "@/components/Menu/MenuList";
 import { useQuery, useQueryClient } from "@tanstack/react-query";  // Importar useQueryClient para refrescar caché
@@ -43,12 +44,16 @@ const MenuPage = () => {
             Explora nuestra selección de platillos gourmet, preparados con ingredientes frescos y de la mejor calidad.
           </p>
         </div>
-
-        {/* Pasar los datos obtenidos al componente MenuList */}
+  
+        {/* Formulario para agregar nuevos platos */}
+        <MenuItemForm onCreated={refreshMenuItems} />
+  
+        {/* Lista del menú */}
         <MenuList items={menuItems} />
       </div>
     </MainLayout>
   );
+  
 };
 
 export default MenuPage;
