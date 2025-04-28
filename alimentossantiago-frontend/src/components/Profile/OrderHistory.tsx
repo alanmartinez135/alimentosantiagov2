@@ -1,4 +1,3 @@
-
 import { useOrder } from "@/context/OrderContext";
 import {
   Accordion,
@@ -78,7 +77,7 @@ const OrderHistory = () => {
         </div>
       ) : (
         <Accordion type="single" collapsible className="space-y-4">
-          {orders.map((order, index) => (
+          {orders.map((order) => (
             <AccordionItem 
               key={order.id} 
               value={order.id}
@@ -114,16 +113,23 @@ const OrderHistory = () => {
                     {order.items.map((item) => (
                       <div key={item.id} className="flex items-center">
                         <div className="h-12 w-12 rounded overflow-hidden mr-3">
-                          <img 
-                            src={item.menuItem.image} 
-                            alt={item.menuItem.name}
-                            className="h-full w-full object-cover" 
-                          />
+                          {/* Verificación segura para item.menuItem */}
+                          {item.menuItem?.image ? (
+                            <img 
+                              src={item.menuItem.image} 
+                              alt={item.menuItem.name}
+                              className="h-full w-full object-cover" 
+                            />
+                          ) : (
+                            <div className="h-full w-full bg-gray-300 flex items-center justify-center text-gray-500">
+                              Sin imagen
+                            </div>
+                          )}
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium">{item.menuItem.name}</p>
+                          <p className="font-medium">{item.menuItem?.name}</p>
                           <p className="text-sm text-gray-500">
-                            ${item.menuItem.price.toFixed(2)} x {item.quantity}
+                            ${item.menuItem?.price?.toFixed(2)} x {item.quantity}
                           </p>
                         </div>
                       </div>

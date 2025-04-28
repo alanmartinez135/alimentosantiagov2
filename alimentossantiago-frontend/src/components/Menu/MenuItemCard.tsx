@@ -20,12 +20,20 @@ interface MenuItemCardProps {
 const MenuItemCard = ({ item }: MenuItemCardProps) => {
   const { addItem } = useCart();
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const isExternalUrl = item.image?.startsWith('http') || item.image?.startsWith('https');
-  const imageUrl = isExternalUrl
-    ? item.image
-    : item.image?.startsWith('/uploads/')
-      ? `http://localhost:3001${item.image}`
-      : `/images/${item.image || "placeholder.jpg"}`;
+  const getImageUrl = (imagePath?: string) => {
+    if (!imagePath) return "/images/placeholder.jpg"; // no hay imagen
+  
+    if (imagePath.startsWith("http") || imagePath.startsWith("https")) {
+      return imagePath; // imagen externa
+    }
+  
+    if (imagePath.startsWith("/uploads/")) {
+      return `http://localhost:3001${imagePath}`; // imagen subida al backend
+    }
+  
+    return `/images/${imagePath}`; // imagen local (ej: 'foto.jpg' => /images/foto.jpg)
+  };
+  const imageUrl = getImageUrl(item.image);
   const tags = item.tags || [];
   const reviews = item.reviews || [];
   console.log("DEBUG IMAGE:", item.image);

@@ -1,3 +1,4 @@
+// src/components/admin/MenuItemList.tsx
 import { useState } from "react";
 import { MenuItem } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -70,11 +71,11 @@ const MenuItemList = ({ menuItems, onUpdated }: Props) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {menuItems.map((item) => (
-        <div key={item.id} className="border p-4 rounded-md shadow-sm">
+        <div key={item.id} className="border p-4 rounded-lg shadow-sm flex flex-col">
           {editingId === item.id ? (
-            <div className="space-y-4">
+            <div className="space-y-4 flex flex-col">
               <div>
                 <Label>Nombre</Label>
                 <Input
@@ -101,13 +102,6 @@ const MenuItemList = ({ menuItems, onUpdated }: Props) => {
                 />
               </div>
               <div>
-                <Label>Imagen URL</Label>
-                <Input
-                  value={formData.imageUrl || ""}
-                  onChange={(e) => handleChange("imageUrl", e.target.value)}
-                />
-              </div>
-              <div>
                 <Label>Categoría</Label>
                 <Input
                   value={formData.category || ""}
@@ -122,7 +116,6 @@ const MenuItemList = ({ menuItems, onUpdated }: Props) => {
                   onChange={(e) => handleChange("stock", Number(e.target.value))}
                 />
               </div>
-              {/* No editamos tags, reviews ni rating desde acá por simplicidad */}
 
               <div className="flex gap-2">
                 <Button onClick={handleUpdate} className="bg-green-600 hover:bg-green-700">
@@ -134,15 +127,20 @@ const MenuItemList = ({ menuItems, onUpdated }: Props) => {
               </div>
             </div>
           ) : (
-            <div className="space-y-2">
-              {item.imageUrl && (
-                <img src={item.imageUrl} alt={item.name} className="w-32 h-32 object-cover rounded" />
+            <>
+              {item.image && (
+                <img
+                  src={`http://localhost:3001${item.image}`}
+                  alt={item.name}
+                  className="w-full h-40 object-cover rounded-md mb-4"
+                />
               )}
-              <h3 className="text-xl font-bold">{item.name}</h3>
-              <p className="text-gray-600">{item.description}</p>
-              <p className="font-semibold">${item.price.toFixed(2)}</p>
-              <p className="text-sm text-gray-500">Categoría: {item.category}</p>
-              <p className="text-sm text-gray-500">Stock: {item.stock}</p>
+              <h3 className="text-lg font-bold">{item.name}</h3>
+              <p className="text-gray-600 text-sm">{item.description}</p>
+              <p className="font-semibold mt-1">${item.price.toFixed(2)}</p>
+              <p className="text-xs text-gray-400">Categoría: {item.category}</p>
+              <p className="text-xs text-gray-400">Stock: {item.stock}</p>
+
               <div className="flex gap-2 mt-4">
                 <Button onClick={() => startEditing(item)} variant="outline">
                   Editar
@@ -151,7 +149,7 @@ const MenuItemList = ({ menuItems, onUpdated }: Props) => {
                   Eliminar
                 </Button>
               </div>
-            </div>
+            </>
           )}
         </div>
       ))}

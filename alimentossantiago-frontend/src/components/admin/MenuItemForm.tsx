@@ -14,7 +14,7 @@ const MenuItemForm = ({ onCreated }: Props) => {
     name: "",
     description: "",
     price: 0,
-    image: "", // ✅ cambiado a image
+    image: "",
     category: "",
     stock: 0,
   });
@@ -29,18 +29,33 @@ const MenuItemForm = ({ onCreated }: Props) => {
     }));
   };
 
-  const cleanImageUrl = (url: string) => {
-    if (!url) return "";
-    return url.trim();
+  const handleImageUpload = async (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    try {
+      const response = await fetch("http://localhost:3001/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        handleChange("image", data.url); // 👈 Guardamos la URL del backend
+      } else {
+        throw new Error(data.error || "Error subiendo imagen");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Error subiendo imagen");
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     setError("");
     setIsLoading(true);
-
-    const cleanedImage = cleanImageUrl(formData.image || "");
 
     try {
       const response = await fetch("http://localhost:3001/menuItems", {
@@ -48,10 +63,9 @@ const MenuItemForm = ({ onCreated }: Props) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...formData,
-          image: cleanedImage, // ✅ usamos imagen limpia
-          tags: [],         // Por defecto vacío
-          rating: 0,        // Nuevo plato empieza con 0 estrellas
-          reviews: [],      // Sin reseñas al crear
+          tags: [],
+          rating: 0,
+          reviews: [],
         }),
       });
 
@@ -59,7 +73,6 @@ const MenuItemForm = ({ onCreated }: Props) => {
         throw new Error("Error al crear el plato");
       }
 
-      // Resetear formulario
       setFormData({
         name: "",
         description: "",
@@ -110,12 +123,23 @@ const MenuItemForm = ({ onCreated }: Props) => {
       </div>
 
       <div>
-        <Label>URL de Imagen</Label>
+        <Label>Imagen</Label>
         <Input
-          value={formData.image || ""}
-          onChange={(e) => handleChange("image", e.target.value)}
-          onBlur={(e) => handleChange("image", cleanImageUrl(e.target.value))} // ✅ limpia espacios al salir del input
+          type="file"
+          accept="image/*"
+          onChange={(e) => {
+            if (e.target.files && e.target.files[0]) {
+              handleImageUpload(e.target.files[0]);
+            }
+          }}
         />
+        {formData.image && (
+          <img
+            src={formData.image}
+            alt="Vista previa"
+            className="mt-2 w-32 h-32 object-cover rounded"
+          />
+        )}
       </div>
 
       <div>

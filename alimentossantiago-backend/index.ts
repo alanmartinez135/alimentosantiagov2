@@ -1,5 +1,8 @@
 import express, { Request, Response } from "express";
 import cors from "cors";
+import path from "path";
+import multer from "multer";
+import uploadRoutes from "./routes/upload.routes";
 
 // Importa tus rutas
 import menuRoutes from "./routes/menuItems.routes";
@@ -8,9 +11,33 @@ import ordersRoutes from "./routes/orders.routes";
 const app = express();
 const PORT = 3001;
 
+// 📸 Configuración de almacenamiento de imágenes
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, "../uploads")); // ✅ Guarda en /uploads (no en public/uploads)
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`); // Nombre único
+  },
+});
+
+const upload = multer({ storage });
+
 // Middlewares
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:8080",
+  credentials: true,
+}));
 app.use(express.json());
+
+// Servir carpeta uploads como pública
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+// Rutas principales
+app.use("/menuItems", menuRoutes);
+app.use("/orders", ordersRoutes);
+app.use("/upload", uploadRoutes);
+
 
 // Base de datos simulada de usuarios
 const users = [
@@ -18,16 +45,7 @@ const users = [
   { id: "2", name: "Juan", email: "juan@mail.com", password: "1234", isAdmin: false },
 ];
 
-// Rutas
-app.use("/menuItems", menuRoutes);
-app.use("/orders", ordersRoutes);
-
-// Ruta de prueba
-app.get("/", (req: Request, res: Response) => {
-  res.send("Servidor Express funcionando 🚀");
-});
-
-// Ruta para login
+// Rutas de auth
 app.post("/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
 
@@ -37,12 +55,10 @@ app.post("/login", (req: Request, res: Response) => {
     return res.status(401).json({ message: "Email o contraseña incorrectos" });
   }
 
-  // No enviar password en la respuesta
   const { password: _, ...userWithoutPassword } = user;
   res.json(userWithoutPassword);
 });
 
-// Ruta para crear nuevo usuario (registro)
 app.post("/users", (req: Request, res: Response) => {
   const { name, email, password } = req.body;
 
@@ -62,6 +78,11 @@ app.post("/users", (req: Request, res: Response) => {
 
   const { password: _, ...userWithoutPassword } = newUser;
   res.status(201).json(userWithoutPassword);
+});
+
+// Ruta de prueba
+app.get("/", (req: Request, res: Response) => {
+  res.send("Servidor Express funcionando 🚀");
 });
 
 // Levantar servidor
