@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -94,18 +93,21 @@
   }
 }
 
-.hero-pattern {
-  background-color: #ffffff;
-  background-image: radial-gradient(#b12c3d 0.5px, transparent 0.5px), radial-gradient(#b12c3d 0.5px, #ffffff 0.5px);
-  background-size: 20px 20px;
-  background-position: 0 0, 10px 10px;
-  opacity: 0.05;
-}
-
-.menu-transition {
-  transition: all 0.3s ease-in-out;
-}
-
-.menu-item:hover {
-  transform: translateY(-5px);
+@layer utilities{
+  .hero-pattern {
+    background-color: #ffffff;
+    background-image: radial-gradient(#b12c3d 0.5px, transparent 0.5px), radial-gradient(#b12c3d 0.5px, #ffffff 0.5px);
+    background-size: 20px 20px;
+    background-position: 0 0, 10px 10px;
+    opacity: 0.05;
+  }
+  
+  .menu-transition {
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .menu-item:hover {
+    transform: translateY(-5px);
+  }
+  
 }

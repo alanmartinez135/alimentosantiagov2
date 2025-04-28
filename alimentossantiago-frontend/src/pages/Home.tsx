@@ -8,8 +8,8 @@ const Home = () => {
   const [menuItems, setMenuItems] = useState([]);  // Estado para los items del menú
 
   useEffect(() => {
-    // Hacer la solicitud fetch a json-server para obtener los elementos del menú
-    fetch("http://localhost:3000/menuItems")  // Aquí apuntas a tu servidor json-server
+    // Hacer la solicitud fetch a express para obtener los elementos del menú
+    fetch("http://localhost:3001/menuItems")  
       .then((response) => response.json())
       .then((data) => setMenuItems(data))
       .catch((error) => console.error("Error al cargar los items del menú", error));

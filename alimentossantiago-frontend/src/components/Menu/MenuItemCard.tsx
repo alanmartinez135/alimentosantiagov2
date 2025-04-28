@@ -20,11 +20,15 @@ interface MenuItemCardProps {
 const MenuItemCard = ({ item }: MenuItemCardProps) => {
   const { addItem } = useCart();
   const [detailsOpen, setDetailsOpen] = useState(false);
-
-  const imageUrl = item.image || "/placeholder.jpg"; // Fallback si no hay imagen
+  const isExternalUrl = item.image?.startsWith('http') || item.image?.startsWith('https');
+  const imageUrl = isExternalUrl
+    ? item.image
+    : item.image?.startsWith('/uploads/')
+      ? `http://localhost:3001${item.image}`
+      : `/images/${item.image || "placeholder.jpg"}`;
   const tags = item.tags || [];
   const reviews = item.reviews || [];
-
+  console.log("DEBUG IMAGE:", item.image);
   return (
     <>
       <Card className="overflow-hidden transition-all duration-300 hover:shadow-lg menu-item">

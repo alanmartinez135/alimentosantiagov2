@@ -1,5 +1,4 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -20,19 +19,24 @@ const LoginPage = () => {
   const navigate = useNavigate();
   const { login, register, user } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
-  
-  // If user is already logged in, redirect to profile page
-  if (user) {
-    navigate("/perfil");
-    return null;
-  }
 
-  // Login form state
+  // 🔥 Redirigir automáticamente si ya está logueado
+  useEffect(() => {
+    if (user) {
+      if (user.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/perfil");
+      }
+    }
+  }, [user, navigate]);
+
+  // Estado del formulario de login
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
 
-  // Register form state
+  // Estado del formulario de registro
   const [registerName, setRegisterName] = useState("");
   const [registerEmail, setRegisterEmail] = useState("");
   const [registerPassword, setRegisterPassword] = useState("");
@@ -43,10 +47,9 @@ const LoginPage = () => {
     e.preventDefault();
     setLoginError("");
     setIsLoading(true);
-
+  
     try {
-      await login(loginEmail, loginPassword);
-      navigate("/perfil");
+      await login(loginEmail, loginPassword); // <-- siempre login normal
     } catch (error) {
       setLoginError(error instanceof Error ? error.message : "Ocurrió un error durante el inicio de sesión");
     } finally {
@@ -67,13 +70,17 @@ const LoginPage = () => {
 
     try {
       await register(registerName, registerEmail, registerPassword);
-      navigate("/perfil");
     } catch (error) {
       setRegisterError(error instanceof Error ? error.message : "Ocurrió un error durante el registro");
     } finally {
       setIsLoading(false);
     }
   };
+
+  // 💬 Si el user está cargando o logueado, podría mostrar loading o nada, opcional
+  if (user) {
+    return null;
+  }
 
   return (
     <MainLayout>
@@ -90,9 +97,7 @@ const LoginPage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Iniciar Sesión</CardTitle>
-                  <CardDescription>
-                    Inicia sesión en tu cuenta para acceder a más funcionalidades.
-                  </CardDescription>
+                  <CardDescription>Inicia sesión en tu cuenta para acceder a más funcionalidades.</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleLogin}>
                   <CardContent className="space-y-4">
@@ -100,23 +105,15 @@ const LoginPage = () => {
                       <Label htmlFor="email">Email</Label>
                       <Input
                         id="email"
-                        type="email"
-                        placeholder="tu@email.com"
+                        type="text"
+                        placeholder="admin o tu@email.com"
                         value={loginEmail}
                         onChange={(e) => setLoginEmail(e.target.value)}
                         required
                       />
                     </div>
                     <div className="space-y-2">
-                      <div className="flex items-center justify-between">
-                        <Label htmlFor="password">Contraseña</Label>
-                        <a 
-                          href="#" 
-                          className="text-xs text-burgundy-700 hover:text-burgundy-800"
-                        >
-                          ¿Olvidaste tu contraseña?
-                        </a>
-                      </div>
+                      <Label htmlFor="password">Contraseña</Label>
                       <Input
                         id="password"
                         type="password"
@@ -125,7 +122,7 @@ const LoginPage = () => {
                         required
                       />
                     </div>
-                    
+
                     {loginError && (
                       <div className="text-red-500 text-sm">{loginError}</div>
                     )}
@@ -148,9 +145,7 @@ const LoginPage = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Crear Cuenta</CardTitle>
-                  <CardDescription>
-                    Regístrate para acceder a todas nuestras funcionalidades.
-                  </CardDescription>
+                  <CardDescription>Regístrate para acceder a todas nuestras funcionalidades.</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleRegister}>
                   <CardContent className="space-y-4">
@@ -196,7 +191,7 @@ const LoginPage = () => {
                         required
                       />
                     </div>
-                    
+
                     {registerError && (
                       <div className="text-red-500 text-sm">{registerError}</div>
                     )}

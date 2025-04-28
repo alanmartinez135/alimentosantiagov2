@@ -15,6 +15,7 @@ export interface MenuItem {
   rating: number;
   reviews: Review[];
   stock: number;
+  imageUrl?: string;
 }
 
 export interface Review {

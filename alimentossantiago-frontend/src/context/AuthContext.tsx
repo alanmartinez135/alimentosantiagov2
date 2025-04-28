@@ -1,10 +1,10 @@
-
 import { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { User } from "@/types";
 import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
 
 type AuthContextType = {
-  user: User | null;
+  user: (User & { isAdmin: boolean }) | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
@@ -14,11 +14,13 @@ type AuthContextType = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<(User & { isAdmin: boolean }) | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
-  // Check if user is already logged in
+  const API_URL = "http://localhost:3001";
+
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
@@ -30,32 +32,38 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // For demo purposes, we'll just check if the email contains "@"
-      if (!email.includes('@')) {
-        throw new Error('Correo electrónico inválido');
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Credenciales inválidas. Inténtalo de nuevo.");
       }
-      
-      // Simulate successful login
-      const userData = {
-        id: `user_${Math.random().toString(36).substr(2, 9)}`,
-        email,
-        name: email.split('@')[0]
-      };
-      
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+
+      const loggedUser = await res.json();
+
+      setUser(loggedUser);
+      localStorage.setItem("user", JSON.stringify(loggedUser));
+
       toast({
-        title: "Inicio de sesión exitoso",
-        description: "¡Bienvenido de vuelta!",
+        title: "¡Bienvenido!",
+        description: `Hola, ${loggedUser.name}`,
         variant: "default",
       });
+
+      if (loggedUser.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/perfil");
+      }
     } catch (error) {
       toast({
         title: "Error al iniciar sesión",
-        description: error instanceof Error ? error.message : "Ocurrió un problema al iniciar sesión",
+        description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
       });
       throw error;
@@ -67,37 +75,35 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Mock API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Validate email
-      if (!email.includes('@')) {
-        throw new Error('Correo electrónico inválido');
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      const res = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Error al registrar el usuario.");
       }
-      
-      // Validate password
-      if (password.length < 6) {
-        throw new Error('La contraseña debe tener al menos 6 caracteres');
-      }
-      
-      // Simulate successful registration
-      const userData = {
-        id: `user_${Math.random().toString(36).substr(2, 9)}`,
-        email,
-        name
-      };
-      
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+
+      const newUser = await res.json();
+
+      setUser(newUser);
+      localStorage.setItem("user", JSON.stringify(newUser));
+
       toast({
-        title: "Registro exitoso",
-        description: "¡Bienvenido a Sabor Burdeos!",
+        title: "¡Registro exitoso!",
+        description: `Bienvenido, ${newUser.name}`,
         variant: "default",
       });
+
+      navigate("/perfil");
     } catch (error) {
       toast({
         title: "Error al registrarse",
-        description: error instanceof Error ? error.message : "Ocurrió un problema al crear la cuenta",
+        description: error instanceof Error ? error.message : "Error desconocido",
         variant: "destructive",
       });
       throw error;
@@ -114,6 +120,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       description: "Has cerrado sesión correctamente",
       variant: "default",
     });
+    navigate("/login");
   };
 
   return (

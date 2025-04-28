@@ -4,6 +4,7 @@ import simpleRestProvider from 'ra-data-simple-rest';
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
 import { OrderProvider } from "@/context/OrderContext";
+import AdminPage from "./pages/AdminPage";
 
 // Componentes de la app
 import Home from "./pages/Home";
@@ -16,17 +17,14 @@ import NotFound from "./pages/NotFound";
 
 // Configuración del cliente de React Query
 const queryClient = new QueryClient();
-
-// DataProvider apuntando a tu backend JSON
-
-const dataProvider = simpleRestProvider('http://localhost:3000');
+const dataProvider = simpleRestProvider('http://localhost:3001');
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <CartProvider>
-        <OrderProvider>
-          <BrowserRouter>
+  <BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <CartProvider>
+          <OrderProvider>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/menu" element={<MenuPage />} />
@@ -35,12 +33,13 @@ const App = () => (
               <Route path="/login" element={<LoginPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
+              <Route path="/admin" element={<AdminPage />} />
             </Routes>
-          </BrowserRouter>
-        </OrderProvider>
-      </CartProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+          </OrderProvider>
+        </CartProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </BrowserRouter>
 );
 
 export default App;

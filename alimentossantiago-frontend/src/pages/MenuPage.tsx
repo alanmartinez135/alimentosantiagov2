@@ -1,7 +1,8 @@
-import MenuItemForm from "@/components/admin/MenuItemForm";  //
+// src/pages/MenuPage.tsx
+import { useAuth } from "@/context/AuthContext";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import MainLayout from "@/components/Layout/MainLayout";
 import MenuList from "@/components/Menu/MenuList";
-import { useQuery, useQueryClient } from "@tanstack/react-query";  // Importar useQueryClient para refrescar caché
 
 // Función para obtener los elementos del menú desde la API
 const fetchMenuItems = async () => {
@@ -13,47 +14,53 @@ const fetchMenuItems = async () => {
 };
 
 const MenuPage = () => {
-  const queryClient = useQueryClient();  // Usar para refrescar la caché cuando se actualizan los datos
+  const { user } = useAuth(); // 🔥 Traemos el usuario logueado
+  const queryClient = useQueryClient();
 
-  // Usar React Query para obtener los elementos del menú
   const { data: menuItems, error, isLoading } = useQuery({
-    queryKey: ["menuItems"],  // Correcta especificación de la queryKey
-    queryFn: fetchMenuItems,  // Función para obtener los datos
+    queryKey: ["menuItems"],
+    queryFn: fetchMenuItems,
   });
 
-  // Función para refrescar los datos del menú
   const refreshMenuItems = () => {
     queryClient.invalidateQueries({ queryKey: ["menuItems"] });
   };
 
-  // Manejar el estado de carga y error
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8 text-center text-gray-500">
+          Cargando menú...
+        </div>
+      </MainLayout>
+    );
   }
 
   if (error instanceof Error) {
-    return <div>Error: {error.message}</div>;
+    return (
+      <MainLayout>
+        <div className="container mx-auto px-4 py-8 text-center text-red-500">
+          Error: {error.message}
+        </div>
+      </MainLayout>
+    );
   }
 
   return (
     <MainLayout>
       <div className="container mx-auto px-4 py-8">
+        {/* Título y descripción */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-burgundy-800 mb-2">Nuestro Menú</h1>
+          <h1 className="text-4xl font-bold text-burgundy-800 mb-2">Nuestro Menú</h1>
           <p className="text-gray-600">
             Explora nuestra selección de platillos gourmet, preparados con ingredientes frescos y de la mejor calidad.
           </p>
         </div>
-  
-        {/* Formulario para agregar nuevos platos */}
-        <MenuItemForm onCreated={refreshMenuItems} />
-  
-        {/* Lista del menú */}
+        {/* Lista de platos para todos los usuarios */}
         <MenuList items={menuItems} />
       </div>
     </MainLayout>
   );
-  
 };
 
 export default MenuPage;
