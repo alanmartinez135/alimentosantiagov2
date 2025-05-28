@@ -3,6 +3,7 @@ import cors from "cors";
 import path from "path";
 import multer from "multer";
 import uploadRoutes from "./routes/upload.routes";
+import paymentRoutes from './routes/payment';
 
 // Importa tus rutas
 import menuRoutes from "./routes/menuItems.routes";
@@ -37,7 +38,7 @@ app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 app.use("/menuItems", menuRoutes);
 app.use("/orders", ordersRoutes);
 app.use("/upload", uploadRoutes);
-
+app.use('/api', paymentRoutes);
 
 // Base de datos simulada de usuarios
 const users = [
@@ -87,5 +88,5 @@ app.get("/", (req: Request, res: Response) => {
 
 // Levantar servidor
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en https://localhost:${PORT}`);
 });
