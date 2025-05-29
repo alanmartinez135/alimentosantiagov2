@@ -33,12 +33,19 @@ export interface CartItem {
   quantity: number;
 }
 
+export interface OrderItem {
+  id?: string; // opcional para permitir items simples
+  menuItem?: MenuItem;
+  menuItemId?: string; // usado al guardar solo la referencia
+  quantity: number;
+}
+
 export interface Order {
   id: string;
   userId: string;
-  items: CartItem[];
+  items: OrderItem[];
   total: number;
-  status: "pending" | "confirmed" | "delivered" | "cancelled";
+  status: "pending" | "confirmed" | "delivered" | "cancelled" | "preparing";
   date: string;
   deliveryMethod: "pickup" | "delivery";
   deliveryAddress?: string;

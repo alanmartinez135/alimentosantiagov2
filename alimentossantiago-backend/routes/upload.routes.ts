@@ -22,7 +22,7 @@ router.post("/", upload.single("image"), (req: Request, res: Response) => {
     return res.status(400).json({ error: "No se subió ninguna imagen" });
   }
 
-  const imageUrl = `http://localhost:3001/uploads/${req.file.filename}`; // URL completa
+  const imageUrl = `https://localhost:3001/uploads/${req.file.filename}`; // URL completa
   res.json({ url: imageUrl });
 });
 

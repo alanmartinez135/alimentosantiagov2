@@ -24,7 +24,7 @@ const AdminPage = () => {
 
   const fetchMenuItems = async () => {
     try {
-      const res = await fetch("http://localhost:3001/menuItems");
+      const res = await fetch("/api/menuItems");
       const data = await res.json();
       setMenuItems(data);
     } catch (error) {

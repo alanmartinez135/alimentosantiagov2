@@ -10,7 +10,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useOrder } from "@/context/OrderContext";
 import { useToast } from "@/components/ui/use-toast";
-import { Home, CreditCard, MapPin } from "lucide-react";
+import { Home, MapPin } from "lucide-react";
 import DeliveryMap from "@/components/Map/DeliveryMap";
 
 const CheckoutPage = () => {
@@ -23,11 +23,6 @@ const CheckoutPage = () => {
   const [deliveryMethod, setDeliveryMethod] = useState<"pickup" | "delivery">("pickup");
   const [address, setAddress] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvc, setCardCvc] = useState("");
 
   useEffect(() => {
     if (items.length === 0) {
@@ -46,49 +41,82 @@ const CheckoutPage = () => {
     }
   }, [user, navigate, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "Debes iniciar sesión para completar tu compra",
-        variant: "destructive",
-      });
-      return;
-    }
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    setIsProcessing(true);
+  if (!user) {
+    toast({
+      title: "Error",
+      description: "Debes iniciar sesión para completar tu compra",
+      variant: "destructive",
+    });
+    return;
+  }
 
-    try {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const order = await createOrder(
-        items, 
-        totalPrice, 
+  setIsProcessing(true);
+
+  try {
+    // 1. Guardar pedido en backend
+    const createOrderResponse = await fetch("http://localhost:3001/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        items,
+        total: totalPrice,
+        status: "pending",
+        date: new Date().toISOString(),
         deliveryMethod,
-        deliveryMethod === "delivery" ? address : undefined
-      );
-      
-      clearCart();
-      
-      toast({
-        title: "¡Pedido completado!",
-        description: `Tu pedido #${order.id.slice(-4)} ha sido procesado correctamente.`,
-        variant: "default",
-      });
-      
-      navigate("/perfil");
-    } catch (error) {
-      toast({
-        title: "Error al procesar el pago",
-        description: "Ha ocurrido un error al procesar tu pago. Por favor, intenta de nuevo.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
+        deliveryAddress: deliveryMethod === "delivery" ? address : undefined,
+      }),
+    });
+
+    if (!createOrderResponse.ok) {
+      throw new Error("No se pudo guardar el pedido");
     }
-  };
+
+    const savedOrder = await createOrderResponse.json();
+
+    // 2. Crear preferencia en MercadoPago
+    const paymentResponse = await fetch("http://localhost:3001/api/crear-preferencia", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: items.map((item) => ({
+          nombre: item.menuItem.name,
+          precio: item.menuItem.price,
+          cantidad: item.quantity,
+        })),
+        usuarioEmail: user.email,
+        orderId: savedOrder.id,
+      }),
+    });
+
+    const data = await paymentResponse.json();
+
+    if (!data || !data.init_point) {
+      throw new Error("No se recibió el link de pago");
+    }
+
+    // 3. Redirigir a MercadoPago
+    window.location.href = data.init_point;
+
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Error",
+      description: "No se pudo procesar el pago",
+      variant: "destructive",
+    });
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
 
   return (
     <MainLayout>
@@ -103,10 +131,10 @@ const CheckoutPage = () => {
             <form onSubmit={handleSubmit} className="space-y-8">
               <div className="bg-white p-6 rounded-lg border">
                 <h2 className="text-lg font-medium mb-4">Método de entrega</h2>
-                
-                <RadioGroup 
-                  value={deliveryMethod} 
-                  onValueChange={(value) => setDeliveryMethod(value as "pickup" | "delivery")} 
+
+                <RadioGroup
+                  value={deliveryMethod}
+                  onValueChange={(value) => setDeliveryMethod(value as "pickup" | "delivery")}
                   className="space-y-4"
                 >
                   <div className="flex items-center space-x-3 border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
@@ -121,7 +149,7 @@ const CheckoutPage = () => {
                       </div>
                     </Label>
                   </div>
-                  
+
                   <div className="flex items-center space-x-3 border p-4 rounded-lg hover:bg-gray-50 cursor-pointer">
                     <RadioGroupItem value="delivery" id="delivery" />
                     <Label htmlFor="delivery" className="flex-grow cursor-pointer">
@@ -135,7 +163,7 @@ const CheckoutPage = () => {
                     </Label>
                   </div>
                 </RadioGroup>
-                
+
                 {deliveryMethod === "delivery" && (
                   <div className="mt-4 space-y-4">
                     <div className="p-4 border-t">
@@ -155,70 +183,12 @@ const CheckoutPage = () => {
                 )}
               </div>
 
-              <div className="bg-white p-6 rounded-lg border">
-                <h2 className="text-lg font-medium mb-4 flex items-center">
-                  <CreditCard className="h-5 w-5 mr-2 text-burgundy-700" />
-                  Información de pago
-                </h2>
-                
-                <p className="text-sm text-yellow-600 mb-4 bg-yellow-50 p-3 rounded-md border border-yellow-200">
-                  Nota: Esta es una demostración. No se procesará ningún pago real.
-                </p>
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="card-number">Número de tarjeta</Label>
-                    <Input
-                      id="card-number"
-                      placeholder="1234 5678 9012 3456"
-                      value={cardNumber}
-                      onChange={(e) => setCardNumber(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="card-name">Nombre en la tarjeta</Label>
-                    <Input
-                      id="card-name"
-                      placeholder="John Doe"
-                      value={cardName}
-                      onChange={(e) => setCardName(e.target.value)}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="card-expiry">Fecha de expiración (MM/AA)</Label>
-                      <Input
-                        id="card-expiry"
-                        placeholder="MM/AA"
-                        value={cardExpiry}
-                        onChange={(e) => setCardExpiry(e.target.value)}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="card-cvc">CVC</Label>
-                      <Input
-                        id="card-cvc"
-                        placeholder="123"
-                        value={cardCvc}
-                        onChange={(e) => setCardCvc(e.target.value)}
-                        required
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                className="w-full bg-burgundy-700 hover:bg-burgundy-800" 
+              <Button
+                type="submit"
+                className="w-full bg-burgundy-700 hover:bg-burgundy-800"
                 disabled={isProcessing}
               >
-                {isProcessing ? "Procesando..." : "Completar Pedido"}
+                {isProcessing ? "Redirigiendo a Mercado Pago..." : "Pagar con Mercado Pago"}
               </Button>
             </form>
           </div>

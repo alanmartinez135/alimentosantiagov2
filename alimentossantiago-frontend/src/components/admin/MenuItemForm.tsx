@@ -1,9 +1,9 @@
-// src/components/admin/MenuItemForm.tsx
 import { useState } from "react";
 import { MenuItem } from "@/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import clsx from "clsx";
 
 type Props = {
   onCreated: () => void;
@@ -21,39 +21,38 @@ const MenuItemForm = ({ onCreated }: Props) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleChange = (field: keyof MenuItem, value: any) => {
-    setFormData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleImageUpload = async (file: File) => {
-    const formData = new FormData();
-    formData.append("image", file);
-
+    const body = new FormData();
+    body.append("image", file);
     try {
-      const response = await fetch("http://localhost:3001/upload", {
+      const res = await fetch("http://localhost:3001/upload", {
         method: "POST",
-        body: formData,
+        body,
       });
-
-      const data = await response.json();
-      if (response.ok) {
-        handleChange("image", data.url); // 👈 Guardamos la URL del backend
-      } else {
-        throw new Error(data.error || "Error subiendo imagen");
-      }
+      const data = await res.json();
+      if (res.ok) handleChange("image", data.url);
+      else throw new Error(data.error);
     } catch (err) {
       console.error(err);
-      setError("Error subiendo imagen");
+      setError("Error al subir imagen");
     }
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleImageUpload(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setError("");
     setIsLoading(true);
 
@@ -69,9 +68,7 @@ const MenuItemForm = ({ onCreated }: Props) => {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Error al crear el plato");
-      }
+      if (!response.ok) throw new Error("Error al crear el plato");
 
       setFormData({
         name: "",
@@ -83,7 +80,6 @@ const MenuItemForm = ({ onCreated }: Props) => {
       });
       onCreated();
     } catch (error) {
-      console.error(error);
       setError("Error al crear el plato");
     } finally {
       setIsLoading(false);
@@ -91,80 +87,76 @@ const MenuItemForm = ({ onCreated }: Props) => {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white p-6 rounded-lg shadow">
-      <h2 className="text-2xl font-bold mb-4">Agregar Nuevo Plato</h2>
+    <form onSubmit={handleSubmit} className="bg-white p-6 rounded-lg shadow space-y-6">
+      <h2 className="text-2xl font-bold">Agregar Nuevo Plato</h2>
 
-      <div>
-        <Label>Nombre</Label>
-        <Input
-          value={formData.name || ""}
-          onChange={(e) => handleChange("name", e.target.value)}
-          required
-        />
+      {/* Datos del plato */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label>Nombre *</Label>
+          <Input required value={formData.name || ""} onChange={(e) => handleChange("name", e.target.value)} />
+        </div>
+
+        <div>
+          <Label>Precio *</Label>
+          <Input required type="number" min={0} value={formData.price ?? 0} onChange={(e) => handleChange("price", Number(e.target.value))} />
+        </div>
+
+        <div className="md:col-span-2">
+          <Label>Descripción *</Label>
+          <Input required value={formData.description || ""} onChange={(e) => handleChange("description", e.target.value)} />
+        </div>
+
+        <div>
+          <Label>Categoría</Label>
+          <Input value={formData.category || ""} onChange={(e) => handleChange("category", e.target.value)} />
+        </div>
+
+        <div>
+          <Label>Stock</Label>
+          <Input type="number" value={formData.stock ?? 0} onChange={(e) => handleChange("stock", Number(e.target.value))} />
+        </div>
       </div>
 
-      <div>
-        <Label>Descripción</Label>
-        <Input
-          value={formData.description || ""}
-          onChange={(e) => handleChange("description", e.target.value)}
-          required
-        />
-      </div>
-
-      <div>
-        <Label>Precio</Label>
-        <Input
-          type="number"
-          value={formData.price ?? 0}
-          onChange={(e) => handleChange("price", Number(e.target.value))}
-          required
-        />
-      </div>
-
+      {/* Imagen */}
       <div>
         <Label>Imagen</Label>
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => {
-            if (e.target.files && e.target.files[0]) {
-              handleImageUpload(e.target.files[0]);
-            }
+        <div
+          onDragOver={(e) => {
+            e.preventDefault();
+            setIsDragging(true);
           }}
-        />
-        {formData.image && (
-          <img
-            src={formData.image}
-            alt="Vista previa"
-            className="mt-2 w-32 h-32 object-cover rounded"
+          onDragLeave={() => setIsDragging(false)}
+          onDrop={handleDrop}
+          className={clsx(
+            "border-2 border-dashed rounded-md p-4 text-center",
+            isDragging ? "border-burgundy-500 bg-burgundy-50" : "border-gray-300"
+          )}
+        >
+          <p className="text-sm text-gray-600 mb-2">Arrastra una imagen aquí o selecciona un archivo</p>
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => e.target.files && handleImageUpload(e.target.files[0])}
           />
-        )}
+          {formData.image && (
+            <img
+              src={formData.image}
+              alt="Preview"
+              className="mt-4 w-32 h-32 object-cover rounded mx-auto"
+            />
+          )}
+        </div>
       </div>
 
-      <div>
-        <Label>Categoría</Label>
-        <Input
-          value={formData.category || ""}
-          onChange={(e) => handleChange("category", e.target.value)}
-        />
-      </div>
+      {/* Error */}
+      {error && <p className="text-red-600 text-sm">{error}</p>}
 
-      <div>
-        <Label>Stock</Label>
-        <Input
-          type="number"
-          value={formData.stock ?? 0}
-          onChange={(e) => handleChange("stock", Number(e.target.value))}
-        />
-      </div>
-
-      {error && <div className="text-red-500">{error}</div>}
-
-      <Button 
-        type="submit" 
-        className="w-full bg-burgundy-700 hover:bg-burgundy-800"
+      {/* Botón */}
+      <Button
+        type="submit"
         disabled={isLoading}
+        className="w-full bg-burgundy-700 hover:bg-burgundy-800"
       >
         {isLoading ? "Agregando..." : "Agregar Plato"}
       </Button>

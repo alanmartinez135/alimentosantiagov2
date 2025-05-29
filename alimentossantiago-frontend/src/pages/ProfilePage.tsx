@@ -70,7 +70,7 @@ const ProfilePage = () => {
           </div>
           
           <div className="md:col-span-2">
-            <OrderHistory />
+            <OrderHistory userId={user.id} />
           </div>
         </div>
       </div>
