@@ -14,6 +14,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
+import PagoExitoso from "./pages/PagoExitoso";
+import PagoFallido from "./pages/PagoFallido";
 
 // Configuración del cliente de React Query
 const queryClient = new QueryClient();
@@ -34,6 +36,9 @@ const App = () => (
               <Route path="/perfil" element={<ProfilePage />} />
               <Route path="*" element={<NotFound />} />
               <Route path="/admin" element={<AdminPage />} />
+              <Route path="/pago-exitoso" element={<PagoExitoso />} />
+              <Route path="/pago-fallido" element={<PagoFallido />} />
+
             </Routes>
           </OrderProvider>
         </CartProvider>

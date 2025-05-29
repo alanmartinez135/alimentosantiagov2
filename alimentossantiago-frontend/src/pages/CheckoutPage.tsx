@@ -71,11 +71,18 @@ const CheckoutPage = () => {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error("Respuesta no exitosa del backend");
+      }
+
       const data = await response.json();
 
-      if (!data.init_point) throw new Error("No se recibió el link de pago");
+      if (!data || !data.init_point) {
+        console.error("Respuesta inesperada de crear-preferencia:", data);
+        throw new Error("No se recibió el link de pago");
+      }
 
-      window.location.href = data.init_point; // Redirige a MercadoPago
+      window.location.href = data.init_point;
     } catch (error) {
       toast({
         title: "Error al procesar el pago",

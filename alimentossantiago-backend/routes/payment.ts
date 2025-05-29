@@ -2,10 +2,10 @@ import express from 'express';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 
 const router = express.Router();
-const NGROK_URL = 'https://afe7-2800-300-6bb1-f560-a11f-22cd-cdf8-409a.ngrok-free.app '; 
+const NGROK_URL = 'https://ae8a-2800-300-6bb1-f560-ac4f-3e8d-8781-c1f7.ngrok-free.app'; 
 
 const mp = new MercadoPagoConfig({
-  accessToken: 'TEST-8450664436614964-033114-10c328d07194bbbc55633db89f669132-153592705', // Reemplaza con tu token real
+  accessToken: 'APP_USR-8739958393455610-052822-bab9b089c7f0615372cc48e0ca812ab8-2463130587', // Reemplaza con tu token real
 });
 
 const preference = new Preference(mp);
@@ -26,9 +26,9 @@ router.post('/crear-preferencia', async (req, res) => {
           email: usuarioEmail,
         },
         back_urls: {
-          success: `${NGROK_URL}/pago-exitoso`,
-          failure: `${NGROK_URL}/pago-fallido`,
-          pending: `${NGROK_URL}/pago-pendiente`,
+          success: `${NGROK_URL}/Pago-exitoso`,
+          failure: `${NGROK_URL}/Pago-fallido`,
+          pending: `${NGROK_URL}/Pago-pendiente`,
         },
         auto_return: 'approved',
       },

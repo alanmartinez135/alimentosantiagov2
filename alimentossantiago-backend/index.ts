@@ -26,8 +26,7 @@ const upload = multer({ storage });
 
 // Middlewares
 app.use(cors({
-  origin: "http://localhost:8080",
-  credentials: true,
+  origin: "*"
 }));
 app.use(express.json());
 
