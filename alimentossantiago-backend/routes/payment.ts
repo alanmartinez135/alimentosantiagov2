@@ -3,7 +3,7 @@ import { MercadoPagoConfig, Preference } from 'mercadopago';
 import { loadDB, saveDB } from "../models/db";
 
 const router = express.Router();
-const NGROK_URL = 'https://ae8a-2800-300-6bb1-f560-ac4f-3e8d-8781-c1f7.ngrok-free.app'; 
+const NGROK_URL = 'https://5e68-2800-300-6bb1-f560-b49e-d701-a720-4c5e.ngrok-free.app'; 
 
 const mp = new MercadoPagoConfig({
   accessToken: 'APP_USR-8739958393455610-052822-bab9b089c7f0615372cc48e0ca812ab8-2463130587', // Reemplaza con tu token real

@@ -40,18 +40,35 @@ const AdminOrdersPage = () => {
     fetchOrders();
   }, [user]);
 
-  const fetchOrders = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch(`${API_URL}/orders`);
-      const data = await res.json();
-      setOrders(data);
-    } catch (err) {
-      console.error("Error cargando pedidos", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+const fetchOrders = async () => {
+  setLoading(true);
+  try {
+    const [ordersRes, menuItemsRes] = await Promise.all([
+      fetch(`${API_URL}/orders`),
+      fetch(`${API_URL}/menuItems`)
+    ]);
+
+    const [ordersData, menuItemsData] = await Promise.all([
+      ordersRes.json(),
+      menuItemsRes.json()
+    ]);
+
+    // Enlazar cada item con el objeto menuItem completo
+    const enrichedOrders = ordersData.map((order: Order) => ({
+      ...order,
+      items: order.items.map((item) => ({
+        ...item,
+        menuItem: menuItemsData.find((m) => m.id === item.menuItemId)
+      }))
+    }));
+
+    setOrders(enrichedOrders);
+  } catch (err) {
+    console.error("Error cargando pedidos", err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const updateOrderStatus = async (orderId: string, newStatus: Order["status"]) => {
     setUpdating(orderId);

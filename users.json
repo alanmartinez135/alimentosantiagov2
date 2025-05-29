@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1",
+    "name": "Admin",
+    "email": "admin@admin.cl",
+    "password": "admin",
+    "isAdmin": true
+  },
+  {
+    "id": "2",
+    "name": "Juan",
+    "email": "juan@mail.com",
+    "password": "1234",
+    "isAdmin": false
+  },
+  {
+    "id": "1748560141389",
+    "name": "alan",
+    "email": "alan@alan.cl",
+    "password": "alan",
+    "isAdmin": false
+  }
+]

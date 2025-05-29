@@ -215,6 +215,79 @@
       "status": "confirmado",
       "date": "2025-05-29T03:40:07.388Z",
       "deliveryMethod": "retiro"
+    },
+    {
+      "id": "1748559505042",
+      "userId": "3",
+      "items": [
+        {
+          "menuItemId": "2",
+          "quantity": 1
+        }
+      ],
+      "total": 26.99,
+      "status": "pending",
+      "date": "2025-05-29T22:58:25.042Z",
+      "deliveryMethod": "delivery",
+      "deliveryAddress": "Nueva Cuatro 1440"
+    },
+    {
+      "id": "1748559721236",
+      "userId": "3",
+      "items": [
+        {
+          "menuItemId": "2",
+          "quantity": 1
+        }
+      ],
+      "total": 26.99,
+      "status": "pending",
+      "date": "2025-05-29T23:02:01.236Z",
+      "deliveryMethod": "delivery",
+      "deliveryAddress": "1440, Nueva 4, Barrio Villa Moderna, Independencia, Provincia de Santiago, Región Metropolitana de Santiago, 8390450, Chile"
+    },
+    {
+      "id": "1748560216288",
+      "userId": "1748560141389",
+      "items": [
+        {
+          "menuItemId": "2",
+          "quantity": 2
+        }
+      ],
+      "total": 53.98,
+      "status": "pending",
+      "date": "2025-05-29T23:10:16.288Z",
+      "deliveryMethod": "delivery",
+      "deliveryAddress": "Nueva Cuatro 1440"
+    },
+    {
+      "id": "1748560867915",
+      "userId": "1748560141389",
+      "items": [
+        {
+          "menuItemId": "3",
+          "quantity": 1
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "date": "2025-05-29T23:21:07.915Z",
+      "deliveryMethod": "pickup"
+    },
+    {
+      "id": "1748560950806",
+      "userId": "1748560141389",
+      "items": [
+        {
+          "menuItemId": "3",
+          "quantity": 1
+        }
+      ],
+      "total": 22.5,
+      "status": "pending",
+      "date": "2025-05-29T23:22:30.806Z",
+      "deliveryMethod": "pickup"
     }
   ]
 }
