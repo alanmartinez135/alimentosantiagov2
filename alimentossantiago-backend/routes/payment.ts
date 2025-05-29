@@ -1,5 +1,6 @@
 import express from 'express';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
+import { loadDB, saveDB } from "../models/db";
 
 const router = express.Router();
 const NGROK_URL = 'https://ae8a-2800-300-6bb1-f560-ac4f-3e8d-8781-c1f7.ngrok-free.app'; 
@@ -46,6 +47,27 @@ router.post('/crear-preferencia', async (req, res) => {
     console.error('Error al crear preferencia:', error);
     res.status(500).json({ error: 'Error al crear la preferencia' });
   }
+});
+
+router.get("/Pago-exitoso", async (req, res) => {
+  const orderId = req.query.orderId as string;
+
+  if (orderId) {
+    try {
+      const db = await loadDB();
+      const index = db.orders.findIndex((o: any) => o.id === orderId);
+      if (index !== -1) {
+        db.orders[index].status = "confirmed";
+        await saveDB(db);
+        console.log(`Pedido ${orderId} confirmado correctamente.`);
+      }
+    } catch (error) {
+      console.error("Error actualizando pedido:", error);
+    }
+  }
+
+  // Redirigir al frontend (ajusta si tu frontend está en otro dominio)
+  res.redirect(`${NGROK_URL}/perfil`);
 });
 
 export default router;

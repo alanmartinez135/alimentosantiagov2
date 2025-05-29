@@ -41,59 +41,82 @@ const CheckoutPage = () => {
     }
   }, [user, navigate, toast]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
 
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "Debes iniciar sesión para completar tu compra",
-        variant: "destructive",
-      });
-      return;
+  if (!user) {
+    toast({
+      title: "Error",
+      description: "Debes iniciar sesión para completar tu compra",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  setIsProcessing(true);
+
+  try {
+    // 1. Guardar pedido en backend
+    const createOrderResponse = await fetch("http://localhost:3001/orders", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        items,
+        total: totalPrice,
+        status: "pending",
+        date: new Date().toISOString(),
+        deliveryMethod,
+        deliveryAddress: deliveryMethod === "delivery" ? address : undefined,
+      }),
+    });
+
+    if (!createOrderResponse.ok) {
+      throw new Error("No se pudo guardar el pedido");
     }
 
-    setIsProcessing(true);
+    const savedOrder = await createOrderResponse.json();
 
-    try {
-      const response = await fetch("http://localhost:3001/api/crear-preferencia", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: items.map((item) => ({
-            nombre: item.menuItem.name,
-            precio: item.menuItem.price,
-            cantidad: item.quantity,
-          })),
-          usuarioEmail: user.email,
-        }),
-      });
+    // 2. Crear preferencia en MercadoPago
+    const paymentResponse = await fetch("http://localhost:3001/api/crear-preferencia", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: items.map((item) => ({
+          nombre: item.menuItem.name,
+          precio: item.menuItem.price,
+          cantidad: item.quantity,
+        })),
+        usuarioEmail: user.email,
+        orderId: savedOrder.id,
+      }),
+    });
 
-      if (!response.ok) {
-        throw new Error("Respuesta no exitosa del backend");
-      }
+    const data = await paymentResponse.json();
 
-      const data = await response.json();
-
-      if (!data || !data.init_point) {
-        console.error("Respuesta inesperada de crear-preferencia:", data);
-        throw new Error("No se recibió el link de pago");
-      }
-
-      window.location.href = data.init_point;
-    } catch (error) {
-      toast({
-        title: "Error al procesar el pago",
-        description: "Ha ocurrido un error al conectar con Mercado Pago",
-        variant: "destructive",
-      });
-      console.error(error);
-    } finally {
-      setIsProcessing(false);
+    if (!data || !data.init_point) {
+      throw new Error("No se recibió el link de pago");
     }
-  };
+
+    // 3. Redirigir a MercadoPago
+    window.location.href = data.init_point;
+
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Error",
+      description: "No se pudo procesar el pago",
+      variant: "destructive",
+    });
+  } finally {
+    setIsProcessing(false);
+  }
+};
+
 
   return (
     <MainLayout>
