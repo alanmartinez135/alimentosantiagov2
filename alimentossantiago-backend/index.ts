@@ -4,6 +4,8 @@ import path from "path";
 import multer from "multer";
 import uploadRoutes from "./routes/upload.routes";
 import paymentRoutes from './routes/payment';
+import fs from "fs";
+
 
 // Importa tus rutas
 import menuRoutes from "./routes/menuItems.routes";
@@ -39,17 +41,28 @@ app.use("/orders", ordersRoutes);
 app.use("/upload", uploadRoutes);
 app.use('/api', paymentRoutes);
 
-// Base de datos simulada de usuarios
-const users = [
-  { id: "1", name: "Admin", email: "admin", password: "admin", isAdmin: true },
-  { id: "2", name: "Juan", email: "juan@mail.com", password: "1234", isAdmin: false },
-];
+// Ruta al archivo JSON
+const usersFilePath = path.join(__dirname, "../users.json");
+
+// Función para leer usuarios
+const getUsers = (): any[] => {
+  const data = fs.readFileSync(usersFilePath, "utf-8");
+  return JSON.parse(data);
+};
+
+// Función para guardar usuarios
+const saveUsers = (users: any[]) => {
+  fs.writeFileSync(usersFilePath, JSON.stringify(users, null, 2));
+};
 
 // Rutas de auth
 app.post("/login", (req: Request, res: Response) => {
   const { email, password } = req.body;
+  const users = getUsers();
 
-  const user = users.find((u) => u.email === email && u.password === password);
+  const user = users.find(
+    (u) => u.email.trim().toLowerCase() === email.trim().toLowerCase() && u.password === password
+  );
 
   if (!user) {
     return res.status(401).json({ message: "Email o contraseña incorrectos" });
@@ -61,20 +74,23 @@ app.post("/login", (req: Request, res: Response) => {
 
 app.post("/users", (req: Request, res: Response) => {
   const { name, email, password } = req.body;
+  const users = getUsers();
 
-  const existingUser = users.find((u) => u.email === email);
+  const existingUser = users.find((u) => u.email.trim().toLowerCase() === email.trim().toLowerCase());
   if (existingUser) {
     return res.status(400).json({ message: "El correo ya está registrado" });
   }
 
   const newUser = {
-    id: (users.length + 1).toString(),
+    id: Date.now().toString(),
     name,
-    email,
+    email: email.trim().toLowerCase(),
     password,
     isAdmin: false,
   };
+
   users.push(newUser);
+  saveUsers(users);
 
   const { password: _, ...userWithoutPassword } = newUser;
   res.status(201).json(userWithoutPassword);

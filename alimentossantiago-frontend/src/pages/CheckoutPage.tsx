@@ -178,7 +178,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                         required
                       />
                     </div>
-                    <DeliveryMap />
+                    <DeliveryMap address={address} />
                   </div>
                 )}
               </div>
